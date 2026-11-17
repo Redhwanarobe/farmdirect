@@ -36,6 +36,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # FarmDirect apps
+    "core",
+    "accounts",
+    "orders",
+    "visits",
+    "bulk",
+    "farms",
+    "recipes",
 ]
 
 MIDDLEWARE = [
@@ -124,3 +132,5 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }
+# Use our own User model (with phone and role)
+AUTH_USER_MODEL = "accounts.User"
