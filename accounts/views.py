@@ -4,7 +4,12 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect, render
 
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, RegisterForm, VerifyCodeForm
+from .services import (
+    check_reverification,
+    needs_reverification,
+    start_reverification,
+)
 
 
 def register(request):
@@ -22,16 +27,45 @@ def register(request):
 
 
 def login_view(request):
-    """Show the login form and log the user in when the details are right."""
+    """Log the user in, or ask for a code if they were away for a year."""
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
-            login(request, form.cleaned_data["user"])
+            user = form.cleaned_data["user"]
+            if needs_reverification(user):
+                start_reverification(request.session, user)
+                messages.info(
+                    request,
+                    "You have not logged in for over a year. "
+                    "We sent a 6-digit code to your phone or email.",
+                )
+                return redirect("accounts:verify")
+            login(request, user)
             messages.success(request, "Welcome back!")
             return redirect("core:home")
     else:
         form = LoginForm()
     return render(request, "accounts/login.html", {"form": form})
+
+
+def verify_view(request):
+    """Check the 6-digit code and finish the login."""
+    if "verify_user_id" not in request.session:
+        return redirect("accounts:login")
+    if request.method == "POST":
+        form = VerifyCodeForm(request.POST)
+        if form.is_valid():
+            user, error = check_reverification(
+                request.session, form.cleaned_data["code"]
+            )
+            if user is not None:
+                login(request, user)
+                messages.success(request, "Account verified. Welcome back!")
+                return redirect("core:home")
+            form.add_error("code", error)
+    else:
+        form = VerifyCodeForm()
+    return render(request, "accounts/verify.html", {"form": form})
 
 
 def logout_view(request):

@@ -76,3 +76,9 @@ class LoginForm(forms.Form):
             raise forms.ValidationError(INVALID_LOGIN)
         cleaned["user"] = user
         return cleaned
+
+
+class VerifyCodeForm(forms.Form):
+    """Ask for the 6-digit code sent to a user who was away for a year."""
+
+    code = forms.CharField(label="6-digit code", max_length=6)
