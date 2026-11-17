@@ -1,12 +1,14 @@
 """Forms for registering and logging in FarmDirect users."""
 
 from django import forms
+from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 
 from .models import User
-from .services import normalize_bd_phone
+from .services import find_username, normalize_bd_phone
 
 ALREADY_REGISTERED = "Email or mobile number already registered."
+INVALID_LOGIN = "Invalid email, mobile number or password."
 
 
 class RegisterForm(UserCreationForm):
@@ -55,3 +57,22 @@ class RegisterForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class LoginForm(forms.Form):
+    """Log in with an email or Bangladeshi mobile number and a password."""
+
+    identifier = forms.CharField(label="Email or mobile number")
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    def clean(self):
+        """Check the details, but never say which part was wrong."""
+        cleaned = super().clean()
+        username = find_username(cleaned.get("identifier", ""))
+        user = None
+        if username:
+            user = authenticate(username=username, password=cleaned.get("password"))
+        if user is None:
+            raise forms.ValidationError(INVALID_LOGIN)
+        cleaned["user"] = user
+        return cleaned
