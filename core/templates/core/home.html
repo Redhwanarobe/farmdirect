@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Home | FarmDirect{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <h1 class="display-5 fw-bold text-success">Fresh from Dhaka's farms</h1>
+  <p class="lead">Buy vegetables, fruits and fish directly from local farmers.</p>
+
+  {% if user.is_authenticated %}
+    <p class="fs-4">Welcome, {{ user.first_name|default:user.username }}! 👋</p>
+  {% else %}
+    <p class="text-muted">Log in to start shopping.</p>
+  {% endif %}
+</div>
+{% endblock %}
