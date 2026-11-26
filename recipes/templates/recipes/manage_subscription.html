@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Deliveries &amp; Subscription — FarmDirect</title>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'recipes:recipe_box' %}">Recipe Box</a> |
+        <a href="{% url 'recipes:allergy_preferences' %}">Allergies</a> |
+        <a href="{% url 'recipes:manage_subscription' %}">My Deliveries</a> |
+        <a href="{% url 'recipes:pantry_recipes' %}">Pantry</a>
+    </nav>
+    <hr>
+
+    <h1>Manage Recipe Box Subscription</h1>
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if subscription %}
+        <p>
+            <strong>Plan:</strong> {{ subscription.get_plan_type_display }} |
+            <strong>Delivery Day:</strong> {{ subscription.delivery_day }} |
+            <strong>Servings:</strong> {{ subscription.servings }} |
+            <strong>Budget:</strong> {{ subscription.budget_bdt }} BDT |
+            <strong>Status:</strong> {{ subscription.get_status_display }}
+        </p>
+
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            {% if subscription.status == "active" %}
+                <button type="submit" name="action" value="pause_sub">Pause Subscription</button>
+            {% elif subscription.status == "paused" %}
+                <button type="submit" name="action" value="resume_sub">Resume Subscription</button>
+            {% endif %}
+            {% if subscription.status != "cancelled" %}
+                <button type="submit" name="action" value="cancel_sub">Cancel Subscription</button>
+            {% endif %}
+        </form>
+
+        <h2>Upcoming Delivery Slots</h2>
+        {% if slots %}
+            <table border="1" cellpadding="6">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Locked for Packing</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for slot in slots %}
+                        <tr>
+                            <td>{{ slot.delivery_date }}</td>
+                            <td>{{ slot.get_status_display }}</td>
+                            <td>{% if slot.locked_for_packing %}Yes{% else %}No{% endif %}</td>
+                            <td>
+                                {% if slot.status == "scheduled" %}
+                                    <form method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="slot_id" value="{{ slot.id }}">
+                                        <button type="submit" name="action" value="skip_slot">Skip Delivery</button>
+                                    </form>
+                                {% else %}
+                                    &mdash;
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No delivery slots scheduled yet.</p>
+        {% endif %}
+    {% else %}
+        <p>You do not have a recipe box subscription yet. Create one in <a href="{% url 'recipes:recipe_box' %}">Recipe Box</a>.</p>
+    {% endif %}
+</body>
+</html>

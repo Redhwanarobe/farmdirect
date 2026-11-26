@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Allergy &amp; Dietary Preferences — FarmDirect</title>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'recipes:recipe_box' %}">Recipe Box</a> |
+        <a href="{% url 'recipes:allergy_preferences' %}">Allergies</a> |
+        <a href="{% url 'recipes:manage_subscription' %}">My Deliveries</a> |
+        <a href="{% url 'recipes:pantry_recipes' %}">Pantry</a>
+    </nav>
+    <hr>
+
+    <h1>Allergy &amp; Dietary Preferences</h1>
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Preferences</button>
+    </form>
+
+    <h2>Safe Recipes for You</h2>
+    {% if safe_recipes %}
+        <ul>
+            {% for recipe in safe_recipes %}
+                <li><strong>{{ recipe.title }}</strong> — {{ recipe.description }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No matching safe recipes found. Try unchecking an allergen or ingredient above.</p>
+    {% endif %}
+</body>
+</html>

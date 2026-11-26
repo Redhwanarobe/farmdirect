@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recipe Box — FarmDirect</title>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'recipes:recipe_box' %}">Recipe Box</a> |
+        <a href="{% url 'recipes:allergy_preferences' %}">Allergies</a> |
+        <a href="{% url 'recipes:manage_subscription' %}">My Deliveries</a> |
+        <a href="{% url 'recipes:pantry_recipes' %}">Pantry</a>
+    </nav>
+    <hr>
+
+    <h1>Recipe Box Subscription</h1>
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" name="calculate_cost">Calculate Cost &amp; Preview</button>
+        <button type="submit" name="confirm_subscription">Confirm &amp; Pay Subscription (Demo)</button>
+    </form>
+
+    <h2>Cost Summary</h2>
+    <p><strong>Estimated Total:</strong> {{ summary.total_cost }} BDT</p>
+
+    {% if summary.over_budget %}
+        <p><strong>Warning:</strong> Selected recipes exceed your budget.</p>
+        {% if summary.swaps %}
+            <h3>Suggested Lower-Cost Recipe Swaps</h3>
+            <ul>
+                {% for swap in summary.swaps %}
+                    <li>{{ swap.recipe.title }} — {{ swap.cost }} BDT</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% else %}
+        <p>Within your selected budget.</p>
+    {% endif %}
+</body>
+</html>
