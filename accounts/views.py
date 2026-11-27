@@ -7,6 +7,7 @@ from django.shortcuts import redirect, render
 from .forms import LoginForm, RegisterForm, VerifyCodeForm
 from .services import (
     check_reverification,
+    home_url_for,
     needs_reverification,
     start_reverification,
 )
@@ -20,7 +21,7 @@ def register(request):
             user = form.save()
             login(request, user)
             messages.success(request, "Account created. Welcome to FarmDirect!")
-            return redirect("core:home")
+            return redirect(home_url_for(user))
     else:
         form = RegisterForm()
     return render(request, "accounts/register.html", {"form": form})
@@ -42,7 +43,7 @@ def login_view(request):
                 return redirect("accounts:verify")
             login(request, user)
             messages.success(request, "Welcome back!")
-            return redirect("core:home")
+            return redirect(home_url_for(user))
     else:
         form = LoginForm()
     return render(request, "accounts/login.html", {"form": form})
@@ -61,7 +62,7 @@ def verify_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, "Account verified. Welcome back!")
-                return redirect("core:home")
+                return redirect(home_url_for(user))
             form.add_error("code", error)
     else:
         form = VerifyCodeForm()

@@ -119,3 +119,12 @@ def check_reverification(session, code, now=None):
     for key in SESSION_KEYS:
         session.pop(key, None)
     return User.objects.get(pk=user_id), None
+
+
+def home_url_for(user):
+    """Return the page a user should see right after logging in."""
+    if user.is_staff:
+        return "admin:index"
+    if user.role == "farmer" and user.farms.filter(is_active=True).exists():
+        return "farms:dashboard"
+    return "core:home"
