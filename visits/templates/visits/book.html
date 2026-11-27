@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h3 mb-1">Book a visit</h1>
+        <p class="mb-1 fw-semibold">{{ slot.farm.name }} · {{ slot.farm.area }}</p>
+        <p class="mb-1">📅 {{ slot.starts_at|date:"D d M Y, g:i A" }}</p>
+        <p class="mb-3">৳{{ slot.price_per_person }} per person · <strong>{{ slot.spots_left }} spots left</strong></p>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <label class="form-label fw-semibold" for="{{ form.people.id_for_label }}">How many people?</label>
+          {{ form.people }}
+          {% for error in form.people.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+          {% endfor %}
+          <button type="submit" class="btn btn-success mt-3">Confirm booking</button>
+          <a href="{% url 'visits:slot_list' %}" class="btn btn-link mt-3">Back</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

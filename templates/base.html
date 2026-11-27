@@ -12,6 +12,15 @@
       <a class="navbar-brand fw-bold" href="{% url 'core:home' %}">🌾 FarmDirect</a>
       <div class="d-flex align-items-center gap-2">
         {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+              <a class="btn btn-outline-light btn-sm" href="{% url 'admin:index' %}">Admin</a>
+            {% elif user.role == "farmer" %}
+              <a class="btn btn-outline-light btn-sm" href="{% url 'farms:dashboard' %}">My farm</a>
+              <a class="btn btn-outline-light btn-sm" href="{% url 'visits:farmer_slots' %}">Farm visits</a>
+            {% elif user.role == "customer" %}
+              <a class="btn btn-outline-light btn-sm" href="{% url 'visits:slot_list' %}">Visit a farm</a>
+              <a class="btn btn-outline-light btn-sm" href="{% url 'visits:my_bookings' %}">My visits</a>
+            {% endif %}
           <span class="text-white me-2">{{ user.first_name|default:user.username }}</span>
           <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
             {% csrf_token %}

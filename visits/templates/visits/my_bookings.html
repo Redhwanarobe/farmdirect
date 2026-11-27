@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">My farm visits</h1>
+  <a href="{% url 'visits:slot_list' %}" class="btn btn-outline-success">Find a visit</a>
+</div>
+
+{% if bookings %}
+<table class="table align-middle">
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Farm</th>
+      <th>Date and time</th>
+      <th>People</th>
+      <th>Total</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for booking in bookings %}
+    <tr>
+      <td><strong>{{ booking.code }}</strong></td>
+      <td>{{ booking.slot.farm.name }}</td>
+      <td>{{ booking.slot.starts_at|date:"D d M Y, g:i A" }}</td>
+      <td>{{ booking.people }}</td>
+      <td>৳{{ booking.total_price }}</td>
+      <td>
+        {% if booking.status == "cancelled" %}
+          <span class="badge bg-secondary">Cancelled – refund on the way</span>
+        {% else %}
+          <span class="badge bg-success">Confirmed</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">You have no farm visits yet.</div>
+{% endif %}
+{% endblock %}

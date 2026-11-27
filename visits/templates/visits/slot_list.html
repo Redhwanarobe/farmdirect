@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-1">Visit a farm</h1>
+<p class="text-muted mb-4">Spend a morning on a real farm near Dhaka. Book your spots below.</p>
+
+{% if slots %}
+<div class="row g-3">
+  {% for slot in slots %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="h5 mb-1">{{ slot.farm.name }}</h2>
+        <p class="text-muted small mb-2">{{ slot.farm.area }}</p>
+        <p class="mb-1">📅 {{ slot.starts_at|date:"D d M Y, g:i A" }}</p>
+        <p class="mb-3">৳{{ slot.price_per_person }} per person</p>
+        {% if slot.is_sold_out %}
+          <span class="badge bg-danger">Sold Out</span>
+        {% else %}
+          <span class="badge bg-success mb-3">{{ slot.spots_left }} spots left</span><br>
+          <a href="{% url 'visits:book' slot.pk %}" class="btn btn-success btn-sm">Book now</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">No farm visits are open right now. Please check again soon.</div>
+{% endif %}
+{% endblock %}
