@@ -6,6 +6,8 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
+    path("farms/", include("farms.urls")),
+    path("visits/", include("visits.urls")),
     path("", include("core.urls")),
     path("recipes/", include("recipes.urls")),
 ]
