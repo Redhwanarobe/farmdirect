@@ -127,4 +127,6 @@ def home_url_for(user):
         return "admin:index"
     if user.role == "farmer" and user.farms.filter(is_active=True).exists():
         return "farms:dashboard"
+    if user.role == "restaurant":
+        return "bulk:dashboard"
     return "core:home"

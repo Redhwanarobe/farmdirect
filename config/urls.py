@@ -1,4 +1,3 @@
-
 """URL configuration for the FarmDirect project."""
 
 from django.contrib import admin
@@ -10,5 +9,6 @@ urlpatterns = [
     path("farms/", include("farms.urls")),
     path("visits/", include("visits.urls")),
     path("orders/", include("orders.urls")),
+    path("bulk/", include("bulk.urls")),
     path("", include("core.urls")),
 ]

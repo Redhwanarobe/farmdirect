@@ -16,8 +16,10 @@
               <a class="btn btn-outline-light btn-sm" href="{% url 'admin:index' %}">Admin</a>
             {% elif user.role == "farmer" %}
               <a class="btn btn-outline-light btn-sm" href="{% url 'farms:dashboard' %}">My farm</a>
-              <a class="btn btn-outline-light btn-sm" href="{% url 'visits:farmer_slots' %}">Farm visits</a>
-            {% elif user.role == "customer" %}
+              <a class="btn btn-outline-light btn-sm" href="{% url 'visits:farmer_slots' %}">Farm visits</a> 
+              {% elif user.role == "restaurant" %}
+              <a class="btn btn-outline-light btn-sm" href="{% url 'bulk:dashboard' %}">Bulk orders</a>
+              {% elif user.role == "customer" %}
               <a class="btn btn-outline-light btn-sm" href="{% url 'visits:slot_list' %}">Visit a farm</a>
               <a class="btn btn-outline-light btn-sm" href="{% url 'visits:my_bookings' %}">My visits</a>
                             <a class="btn btn-outline-light btn-sm" href="{% url 'orders:cart' %}">My cart</a>

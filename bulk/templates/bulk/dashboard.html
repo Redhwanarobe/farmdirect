@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-3">Bulk orders</h1>
+
+{% if not account %}
+<div class="card shadow-sm mb-4"><div class="card-body p-4">
+  <h2 class="h5">Ask for 30-day credit</h2>
+  <p class="text-muted">Buy now and pay within 30 days after delivery. An admin checks your request first.</p>
+  <form method="post" action="{% url 'bulk:credit_request' %}">
+    {% csrf_token %}
+    {% for field in credit_form %}
+      <div class="mb-3"><label class="form-label fw-semibold">{{ field.label }}</label>{{ field }}</div>
+    {% endfor %}
+    <button class="btn btn-success">Send request</button>
+  </form>
+</div></div>
+{% elif not account.is_approved %}
+<div class="alert {% if account.status == 'rejected' %}alert-danger{% else %}alert-warning{% endif %}">
+  Credit for <strong>{{ account.business_name }}</strong>: {{ account.get_status_display }}.
+  {% if account.status == 'pending' %}You can order after an admin approves it.{% endif %}
+</div>
+{% else %}
+<div class="alert alert-success">✅ 30-day credit approved for <strong>{{ account.business_name }}</strong>.</div>
+<div class="card shadow-sm mb-4"><div class="card-body p-4">
+  <h2 class="h5">New bulk order</h2>
+  <form method="post" action="{% url 'bulk:place_order' %}" class="row g-3 align-items-end">
+    {% csrf_token %}
+    <div class="col-md-6"><label class="form-label fw-semibold">Product</label>{{ order_form.product }}</div>
+    <div class="col-md-3"><label class="form-label fw-semibold">Quantity</label>{{ order_form.quantity }}</div>
+    <div class="col-md-3"><button class="btn btn-success w-100">Place order</button></div>
+    <div class="form-text">{{ order_form.quantity.help_text }}</div>
+  </form>
+</div></div>
+{% endif %}
+
+<h2 class="h5">My invoices</h2>
+{% if orders %}
+<table class="table align-middle">
+  <thead><tr><th>#</th><th>Product</th><th>Qty</th><th>Price</th><th>Total</th><th>Status</th><th>Due date</th><th></th></tr></thead>
+  <tbody>
+  {% for order in orders %}
+    <tr>
+      <td>{{ order.pk }}</td>
+      <td>{{ order.product.name }} <small class="text-muted">({{ order.product.farm.name }})</small></td>
+      <td>{{ order.quantity }} {{ order.product.unit }}</td>
+      <td>৳{{ order.unit_price }}</td>
+      <td><strong>৳{{ order.total }}</strong></td>
+      <td>
+        {% if order.status == "paid" %}<span class="badge bg-success">Paid</span>
+        {% elif order.is_overdue %}<span class="badge bg-danger">Overdue</span>
+        {% elif order.status == "delivered" %}<span class="badge bg-warning text-dark">Invoice due</span>
+        {% else %}<span class="badge bg-secondary">Placed</span>{% endif %}
+      </td>
+      <td>{{ order.due_date|date:"d M Y"|default:"After delivery" }}</td>
+      <td class="text-end">
+        {% if order.status == "delivered" %}
+        <form method="post" action="{% url 'bulk:pay' order.pk %}" class="d-inline"
+              onsubmit="return confirm('Demo payment - no real money. Mark this invoice as paid?');">
+          {% csrf_token %}<button class="btn btn-sm btn-outline-success">Mark as paid</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">No bulk orders yet.</div>
+{% endif %}
+{% endblock %}
