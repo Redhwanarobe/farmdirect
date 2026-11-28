@@ -10,7 +10,7 @@
   <form method="post" action="{% url 'bulk:credit_request' %}">
     {% csrf_token %}
     {% for field in credit_form %}
-      <div class="mb-3"><label class="form-label fw-semibold">{{ field.label }}</label>{{ field }}</div>
+    <div class="mb-3"><label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</div>
     {% endfor %}
     <button class="btn btn-success">Send request</button>
   </form>
@@ -24,10 +24,10 @@
 <div class="alert alert-success">✅ 30-day credit approved for <strong>{{ account.business_name }}</strong>.</div>
 <div class="card shadow-sm mb-4"><div class="card-body p-4">
   <h2 class="h5">New bulk order</h2>
-  <form method="post" action="{% url 'bulk:place_order' %}" class="row g-3 align-items-end">
+<form method="post" action="{% url 'bulk:place_order' %}" class="row g-3 align-items-end">
     {% csrf_token %}
-    <div class="col-md-6"><label class="form-label fw-semibold">Product</label>{{ order_form.product }}</div>
-    <div class="col-md-3"><label class="form-label fw-semibold">Quantity</label>{{ order_form.quantity }}</div>
+    <div class="col-md-6"><label class="form-label fw-semibold" for="{{ order_form.product.id_for_label }}">Product</label>{{ order_form.product }}</div>
+    <div class="col-md-3"><label class="form-label fw-semibold" for="{{ order_form.quantity.id_for_label }}">Quantity</label>{{ order_form.quantity }}</div>
     <div class="col-md-3"><button class="btn btn-success w-100">Place order</button></div>
     <div class="form-text">{{ order_form.quantity.help_text }}</div>
   </form>
