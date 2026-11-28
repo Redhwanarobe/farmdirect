@@ -65,9 +65,26 @@ def recipe_box_view(request):
                     "safe_recipes": safe_recipes,
                 },
             )
-    else:
-        form = RecipeBoxForm(initial=initial_data, available_recipes=safe_recipes)
+        # Bug fix: before, an invalid form silently showed 0.00 with no reason.
+        if not safe_recipes:
+            messages.error(
+                request, "No recipes are available yet. Please try again later."
+            )
+        else:
+            messages.error(
+                request, "Please choose at least one recipe and check the form."
+            )
+        return render(
+            request,
+            "recipes/recipe_box.html",
+            {
+                "form": form,
+                "summary": calculate_box_cost_and_swaps([], 1, 0),
+                "safe_recipes": safe_recipes,
+            },
+        )
 
+    form = RecipeBoxForm(initial=initial_data, available_recipes=safe_recipes)
     preview_recipes = form.initial.get("selected_recipes", [])
     summary = calculate_box_cost_and_swaps(
         preview_recipes,
@@ -233,4 +250,3 @@ def pantry_recipes_view(request):
             "shopping_ingredients": shopping_ingredients,
         },
     )
-

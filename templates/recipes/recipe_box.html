@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Recipe Box · FarmDirect{% endblock %}
+
+{% block content %}
+<style>
+  .recipe-form input:not([type=checkbox]), .recipe-form select {
+    display: block; width: 100%; padding: .375rem .75rem;
+    border: 1px solid #ced4da; border-radius: .375rem; background: #fff;
+  }
+  .recipe-form ul, .recipe-form #id_selected_recipes { list-style: none; padding-left: 0; }
+  .recipe-form input[type=checkbox] { margin-right: .5rem; }
+</style>
+
+<ul class="nav nav-pills mb-4">
+  <li class="nav-item"><a class="nav-link active bg-success" href="{% url 'recipes:recipe_box' %}">Recipe Box</a></li>
+  <li class="nav-item"><a class="nav-link text-success" href="{% url 'recipes:allergy_preferences' %}">Allergies</a></li>
+  <li class="nav-item"><a class="nav-link text-success" href="{% url 'recipes:manage_subscription' %}">My Deliveries</a></li>
+  <li class="nav-item"><a class="nav-link text-success" href="{% url 'recipes:pantry_recipes' %}">Pantry</a></li>
+</ul>
+
+<h1 class="h3">Recipe Box Subscription</h1>
+<p class="text-muted">Choose your recipes, servings and budget. We check the cost against your budget.</p>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card shadow-sm"><div class="card-body p-4">
+      <form method="post" class="recipe-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+        <div class="row g-3">
+          {% for field in form %}
+            {% if field.name != "selected_recipes" %}
+              <div class="col-md-6">
+                <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <h2 class="h6 mt-4">Choose recipes</h2>
+        {% if safe_recipes %}
+          <div class="border rounded p-3 bg-light">{{ form.selected_recipes }}</div>
+          {% for error in form.selected_recipes.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          <div class="form-text">Only recipes that are safe for your allergies are shown.</div>
+        {% else %}
+          <div class="alert alert-warning">No recipes are available yet.</div>
+        {% endif %}
+
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn btn-outline-success">Calculate cost</button>
+          <button type="submit" name="confirm_subscription" value="1" class="btn btn-success">Confirm &amp; Pay (Demo)</button>
+        </div>
+      </form>
+    </div></div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card shadow-sm"><div class="card-body p-4">
+      <h2 class="h5">Cost summary</h2>
+      <p class="display-6 fw-bold text-success mb-1">৳{{ summary.total_cost }}</p>
+      {% if summary.over_budget %}
+        <div class="alert alert-danger py-2">Over your budget.</div>
+      {% else %}
+        <div class="alert alert-success py-2">Within your budget.</div>
+      {% endif %}
+
+      {% if summary.per_recipe %}
+        <ul class="list-group list-group-flush mb-3">
+          {% for item in summary.per_recipe %}
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>{{ item.recipe.title }}</span><span>৳{{ item.cost }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if summary.swaps %}
+        <h3 class="h6">Cheaper choices</h3>
+        <ul class="small ps-3 mb-0">
+          {% for swap in summary.swaps %}<li>{{ swap.recipe.title }} – ৳{{ swap.cost }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}
