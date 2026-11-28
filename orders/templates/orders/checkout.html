@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Checkout | FarmDirect</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f7f5;
+        }
+
+        h1, h2 {
+            color: #287a3c;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 650px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 18px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #287a3c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .message {
+            color: red;
+        }
+
+        .summary {
+            background: #f5f7f5;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .total {
+            font-size: 20px;
+            font-weight: bold;
+            color: #287a3c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>FarmDirect Checkout</h1>
+
+    <p>Please enter your delivery information.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p class="message">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <div class="container">
+
+        <h2>Order Summary</h2>
+
+        <div class="summary">
+
+            {% for item in cart_items %}
+
+                <p>
+                    <strong>
+                        {% if item.product %}
+                            {{ item.product.name }}
+                        {% else %}
+                            Unavailable product
+                        {% endif %}
+                    </strong>
+
+                    × {{ item.quantity }}
+
+                    = ৳{{ item.subtotal|floatformat:2 }}
+                </p>
+
+            {% endfor %}
+
+            <hr>
+
+            <p class="total">
+                Total: ৳{{ cart.total_price|floatformat:2 }}
+            </p>
+
+        </div>
+
+        <h2>Delivery Information</h2>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <label>Delivery Address</label>
+
+            <textarea
+                name="delivery_address"
+                rows="3"
+                placeholder="Enter your full delivery address"
+                required
+            ></textarea>
+
+            <label>City</label>
+
+            <input
+                type="text"
+                name="city"
+                placeholder="Enter your city"
+                required
+            >
+
+            <label>Phone Number</label>
+
+            <input
+                type="tel"
+                name="phone"
+                placeholder="Enter your phone number"
+                required
+            >
+
+            <h2>Payment Method</h2>
+
+            <select name="payment_method" required>
+
+                <option value="">Select Payment Method</option>
+
+                <option value="bkash">bKash</option>
+
+                <option value="nagad">Nagad</option>
+
+                <option value="card">Card</option>
+
+                <option value="cod">Cash on Delivery</option>
+
+            </select>
+
+            <button type="submit">
+                Place Order
+            </button>
+
+        </form>
+
+    </div>
+
+    <br>
+
+    <a href="{% url 'orders:cart' %}">
+        Back to Cart
+    </a>
+
+</body>
+</html>

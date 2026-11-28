@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Shopping Cart | FarmDirect</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f7f5;
+        }
+
+        h1 {
+            color: #287a3c;
+        }
+
+        .cart-item {
+            background: white;
+            padding: 18px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 8px 14px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .update-button {
+            background-color: #287a3c;
+        }
+
+        .remove-button {
+            background-color: #d9534f;
+        }
+
+        input {
+            padding: 8px;
+            width: 100px;
+        }
+
+        .total {
+            font-size: 20px;
+            font-weight: bold;
+            color: #287a3c;
+        }
+
+        .message {
+            color: green;
+        }
+
+        .checkout-button {
+            display: inline-block;
+            padding: 10px 18px;
+            background-color: #287a3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>My Shopping Cart</h1>
+
+    <p>Welcome to your FarmDirect shopping cart!</p>
+
+    <hr>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p class="message">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <h2>Cart Summary</h2>
+
+    <p>Total items: {{ cart.total_items }}</p>
+
+    {% if cart.items.exists %}
+
+        <h3>Your Cart Items</h3>
+
+        {% for item in cart.items.all %}
+
+            <div class="cart-item">
+
+                {% if item.product %}
+
+                    <h3>{{ item.product.name }}</h3>
+
+                    <p>Category: {{ item.product.category }}</p>
+
+                    <p>
+                        Price:
+                        &#2547;{{ item.product.price }} /
+                        {{ item.product.unit }}
+                    </p>
+
+                    <p>
+                        Available Stock:
+                        {{ item.product.stock }} {{ item.product.unit }}
+                    </p>
+
+                    <form method="POST"
+                          action="{% url 'orders:update_cart_item' item.id %}">
+
+                        {% csrf_token %}
+
+                        <label for="quantity-{{ item.id }}">
+                            Quantity:
+                        </label>
+
+                        <input
+                            type="number"
+                            id="quantity-{{ item.id }}"
+                            name="quantity"
+                            value="{{ item.quantity }}"
+                            min="0.01"
+                            max="{{ item.product.stock }}"
+                            step="0.01"
+                            required
+                        >
+
+                        <button type="submit" class="update-button">
+                            Update Quantity
+                        </button>
+
+                    </form>
+
+                    <p>
+                        Subtotal:
+                        &#2547;{{ item.subtotal|floatformat:2 }}
+                    </p>
+
+                {% else %}
+
+                    <p>This cart item has no product assigned.</p>
+
+                {% endif %}
+
+                <form method="POST"
+                      action="{% url 'orders:remove_cart_item' item.id %}">
+
+                    {% csrf_token %}
+
+                    <button type="submit" class="remove-button">
+                        Remove Item
+                    </button>
+
+                </form>
+
+            </div>
+
+        {% endfor %}
+
+        <hr>
+
+        <p class="total">
+            Total Price:
+            &#2547;{{ cart.total_price|floatformat:2 }}
+        </p>
+
+        <a href="{% url 'orders:checkout' %}"
+           class="checkout-button">
+            Proceed to Checkout
+        </a>
+
+    {% else %}
+
+        <p>Your cart is empty.</p>
+
+    {% endif %}
+
+    <br><br>
+
+    <a href="/">Continue Shopping</a>
+
+</body>
+</html>
