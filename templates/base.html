@@ -30,6 +30,7 @@
             <a class="btn btn-outline-light btn-sm" href="{% url 'visits:my_bookings' %}">My visits</a>
             <a class="btn btn-outline-light btn-sm" href="{% url 'orders:cart' %}">My cart</a>
             <a class="btn btn-outline-light btn-sm" href="{% url 'orders:order_history' %}">My orders</a>
+            <a class="btn btn-outline-light btn-sm" href="/recipes/box/">Recipes</a>
           {% endif %}
           <span class="text-white me-2">{{ user.first_name|default:user.username }}</span>
           <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
