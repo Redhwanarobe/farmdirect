@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Box Subscription — FarmDirect</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-emerald-50/40 min-h-screen text-slate-800 antialiased pb-16">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white border-b border-emerald-100 shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl font-black text-emerald-600 tracking-tight">FarmDirect 🌱</span>
+                </div>
+                <div class="flex items-center space-x-6 text-sm font-medium text-slate-600">
+                    <a href="/recipes/box/" class="text-emerald-600 font-semibold border-b-2 border-emerald-600 py-5">Recipe Box</a>
+                    <a href="/recipes/allergies/" class="hover:text-emerald-600 transition">Allergies</a>
+                    <a href="/recipes/deliveries/" class="hover:text-emerald-600 transition">My Deliveries</a>
+                    <a href="/recipes/pantry/" class="hover:text-emerald-600 transition">Pantry</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 mt-10">
+        <div class="mb-8 text-center sm:text-left">
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Recipe Box Subscription</h1>
+            <p class="text-slate-500 mt-1">Customize your weekly fresh ingredients box tailored to your family's budget.</p>
+        </div>
+
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Main Form Card -->
+                <div class="md:col-span-2 bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-emerald-100/60 space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800 border-b border-slate-100 pb-3">Subscription Details</h2>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <!-- Plan Type -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Plan Type</label>
+                            <select name="plan_type" class="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                                <option value="Weekly" {% if request.POST.plan_type == 'Weekly' %}selected{% endif %}>Weekly Plan</option>
+                                <option value="Bi-Weekly" {% if request.POST.plan_type == 'Bi-Weekly' %}selected{% endif %}>Bi-Weekly Plan</option>
+                                <option value="Monthly" {% if request.POST.plan_type == 'Monthly' %}selected{% endif %}>Monthly Plan</option>
+                            </select>
+                        </div>
+
+                        <!-- Delivery Day -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Delivery Day</label>
+                            <input type="text" name="delivery_day" value="{{ request.POST.delivery_day|default:'Friday' }}" class="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition" placeholder="e.g. Friday">
+                        </div>
+
+                        <!-- Servings -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Servings (People)</label>
+                            <input type="number" name="servings" min="1" max="12" value="{{ request.POST.servings|default:2 }}" class="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                        </div>
+
+                        <!-- Budget BDT -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Budget (BDT)</label>
+                            <div class="relative">
+                                <input type="number" name="budget_bdt" step="0.01" value="{{ request.POST.budget_bdt|default:1500 }}" class="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-xl pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                                <span class="absolute right-4 top-3.5 text-xs font-bold text-slate-400">BDT</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Selected Recipes Selection -->
+                    {% if recipes %}
+                    <div class="pt-4">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Select Recipes for this Box</label>
+                        <div class="grid grid-cols-1 gap-3 max-h-60 overflow-y-auto pr-1">
+                            {% for recipe in recipes %}
+                            <label class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-emerald-300 bg-slate-50/50 hover:bg-emerald-50/30 cursor-pointer transition">
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" name="selected_recipes" value="{{ recipe.id }}" class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                                    <span class="font-medium text-slate-700">{{ recipe.title }}</span>
+                                </div>
+                                <span class="text-xs font-semibold text-emerald-700 bg-emerald-100/60 px-2.5 py-1 rounded-md">{{ recipe.estimated_cost }} BDT</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Form Buttons -->
+                    <div class="pt-4 flex flex-col sm:flex-row gap-3">
+                        <button type="submit" name="action" value="calculate" class="flex-1 bg-white border border-emerald-600 text-emerald-700 font-semibold py-3.5 px-6 rounded-xl hover:bg-emerald-50 transition text-center shadow-sm">
+                            Calculate Cost & Preview
+                        </button>
+                        <button type="submit" name="action" value="confirm" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 px-6 rounded-xl transition text-center shadow-md hover:shadow-lg">
+                            Confirm & Pay (Demo)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cost Summary Card -->
+                <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-emerald-100/60 flex flex-col justify-between h-full">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 border-b border-slate-100 pb-3 mb-6">Cost Summary</h2>
+                        
+                        <div class="bg-emerald-50/60 rounded-2xl p-5 text-center mb-6 border border-emerald-100">
+                            <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider block mb-1">Estimated Total</span>
+                            <div class="text-3xl font-black text-emerald-600">
+                                {% if total_cost %}{{ total_cost }}{% else %}0.00{% endif %} <span class="text-sm font-bold text-emerald-700">BDT</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 text-sm">
+                            {% if budget_exceeded %}
+                            <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800">
+                                <p class="font-semibold text-xs uppercase tracking-wide">⚠️ Budget Exceeded</p>
+                                <p class="mt-1 text-xs">Total cost exceeds your selected budget. Try swapping recipes or reducing servings.</p>
+                            </div>
+                            {% else %}
+                            <div class="flex items-center text-emerald-700 bg-emerald-50/50 p-3.5 rounded-xl border border-emerald-100/50">
+                                <svg class="w-5 h-5 mr-2 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                <span class="font-medium text-xs">Within your selected budget.</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-4 border-t border-slate-100 text-xs text-slate-400 text-center">
+                        Fresh organic products sourced directly from local farms.
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+
+</body>
+</html>
