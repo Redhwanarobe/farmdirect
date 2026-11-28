@@ -4,6 +4,7 @@ import re
 import secrets
 from datetime import datetime, timedelta
 
+from django.core.mail import send_mail
 from django.utils import timezone
 
 from core.constants import INACTIVE_DAYS, VERIFY_CODE_MINUTES
@@ -72,10 +73,32 @@ def needs_reverification(user, now=None):
     return now - user.last_login > timedelta(days=INACTIVE_DAYS)
 
 
-def start_reverification(session, user, now=None):
-    """Make a 6-digit code, keep it in the session and "send" it.
+def send_verification_code(user, code):
+    """Send the code by email if the user has one, otherwise by (simulated) SMS.
 
-    The SMS is simulated: the code is printed in the terminal.
+    Locally the email backend prints the email in the terminal.
+    On a live server only the MAILERS setting changes.
+
+    Args:
+        user: The user who must verify.
+        code: The 6-digit code.
+    """
+    if user.email:
+        send_mail(
+            "Your FarmDirect verification code",
+            f"Hello {user.first_name or user.username},\n\n"
+            f"Your verification code is {code}. "
+            f"It expires in {VERIFY_CODE_MINUTES} minutes.\n\n"
+            "If you did not try to log in, please ignore this email.",
+            None,
+            [user.email],
+        )
+    else:
+        print(f"[FarmDirect SMS] Code for {user.phone}: {code}")
+
+
+def start_reverification(session, user, now=None):
+    """Make a 6-digit code, keep it in the session and send it.
 
     Args:
         session: The browser session (request.session).
@@ -91,7 +114,7 @@ def start_reverification(session, user, now=None):
     session["verify_user_id"] = user.pk
     session["verify_code"] = code
     session["verify_expires"] = expires.isoformat()
-    print(f"[FarmDirect SMS] Code for {user.phone or user.email}: {code}")
+    send_verification_code(user, code)
     return code
 
 

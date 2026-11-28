@@ -141,3 +141,6 @@ MAILERS = {
 
 # Use our own User model (with phone and role)
 AUTH_USER_MODEL = "accounts.User"
+
+# Sender shown on FarmDirect emails
+DEFAULT_FROM_EMAIL = "FarmDirect <noreply@farmdirect.local>"
