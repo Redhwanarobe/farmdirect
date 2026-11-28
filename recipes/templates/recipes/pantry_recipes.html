@@ -2,100 +2,132 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Pantry &amp; Recipe Suggestions — FarmDirect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantry & Recipe Matches — FarmDirect</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body>
-    <nav>
-        <a href="{% url 'recipes:recipe_box' %}">Recipe Box</a> |
-        <a href="{% url 'recipes:allergy_preferences' %}">Allergies</a> |
-        <a href="{% url 'recipes:manage_subscription' %}">My Deliveries</a> |
-        <a href="{% url 'recipes:pantry_recipes' %}">Pantry</a>
+<body class="bg-emerald-50/40 min-h-screen text-slate-800 antialiased pb-16">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white border-b border-emerald-100 shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl font-black text-emerald-600 tracking-tight">FarmDirect 🌱</span>
+                </div>
+                <div class="flex items-center space-x-6 text-sm font-medium text-slate-600">
+                    <a href="/recipes/box/" class="hover:text-emerald-600 transition">Recipe Box</a>
+                    <a href="/recipes/allergies/" class="hover:text-emerald-600 transition">Allergies</a>
+                    <a href="/recipes/deliveries/" class="hover:text-emerald-600 transition">My Deliveries</a>
+                    <a href="/recipes/pantry/" class="text-emerald-600 font-semibold border-b-2 border-emerald-600 py-5">Pantry</a>
+                </div>
+            </div>
+        </div>
     </nav>
-    <hr>
 
-    <h1>My Pantry &amp; Safe Recipe Suggestions</h1>
+    <!-- Main Content Container -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 mt-10">
+        <div class="mb-8">
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">My Pantry & Recipe Matches</h1>
+            <p class="text-slate-500 mt-1">Add ingredients you already have at home to see matching recipes and missing shopping items.</p>
+        </div>
 
-    {% if messages %}
-        <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <!-- Left Column: Pantry Items & Add Form -->
+            <div class="lg:col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-emerald-100/60 space-y-6">
+                <h2 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3">Pantry Stock</h2>
 
-    <h2>Add Ingredient to Pantry</h2>
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="add_item">
-        {{ form.as_p }}
-        <button type="submit">Add to Pantry</button>
-    </form>
+                <form method="post" class="space-y-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Add Ingredient</label>
+                    <div class="flex gap-2">
+                        <input type="text" name="ingredient_name" placeholder="e.g. Tomato, Rice" class="flex-1 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition shrink-0">
+                            Add
+                        </button>
+                    </div>
+                </form>
 
-    <h2>Current Pantry Items</h2>
-    {% if pantry_items %}
-        <ul>
-            {% for item in pantry_items %}
-                <li>
-                    {{ item.ingredient.name }}
-                    {% if item.quantity_label %}({{ item.quantity_label }}){% endif %}
-                    <form method="post" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="remove_item">
-                        <input type="hidden" name="item_id" value="{{ item.id }}">
-                        <button type="submit">Remove</button>
-                    </form>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>Your pantry is currently empty. Add ingredients above to get recipe suggestions.</p>
-    {% endif %}
-
-    <h2>Suggested Safe Recipes</h2>
-    {% if suggestions %}
-        {% for s in suggestions %}
-            <div style="border:1px solid #ccc; padding:10px; margin-bottom:12px;">
-                <h3>{{ s.recipe.title }}</h3>
-                <p><strong>Matched ({{ s.match_count }}):</strong>
-                    {% for m in s.matched %}{{ m.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
-                </p>
-                <p><strong>Missing ({{ s.missing_count }}):</strong>
-                    {% if s.missing %}
-                        {% for miss in s.missing %}{{ miss.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
-                    {% else %}
-                        None
-                    {% endif %}
-                </p>
-                {% if s.missing %}
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="add_missing">
-                        {% for miss in s.missing %}
-                            <input type="hidden" name="missing_ids" value="{{ miss.id }}">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Current Items</p>
+                    {% if pantry_items %}
+                    <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                        {% for item in pantry_items %}
+                        <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-sm">
+                            <span class="font-medium text-slate-700">{{ item.ingredient.name|default:item.name|default:item }}</span>
+                            <form method="post" class="inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="remove">
+                                {% if item.id %}<input type="hidden" name="item_id" value="{{ item.id }}">{% endif %}
+                                <button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-1 rounded-lg hover:bg-rose-50 transition">
+                                    Remove
+                                </button>
+                            </form>
+                        </div>
                         {% endfor %}
-                        <button type="submit">Add Missing to Shopping List</button>
-                    </form>
+                    </div>
+                    {% else %}
+                    <p class="text-xs text-slate-400 bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                        No pantry items added yet.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right Column: Matched Recipes & Shopping List -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-emerald-100/60">
+                    <h2 class="text-xl font-bold text-slate-800 border-b border-slate-100 pb-3 mb-5">Recipe Matches</h2>
+
+                    {% if matched_recipes %}
+                    <div class="space-y-4">
+                        {% for match in matched_recipes %}
+                        <div class="p-4 rounded-2xl border border-emerald-100 bg-emerald-50/30 space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <h3 class="font-bold text-slate-800">{{ match.recipe.title|default:match.title|default:match }}</h3>
+                                {% if match.matched_count is not None %}
+                                <span class="text-xs font-semibold text-emerald-700 bg-white px-2.5 py-1 rounded-lg border border-emerald-100">
+                                    {{ match.matched_count }} matched
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% if match.missing_ingredients %}
+                            <p class="text-xs text-slate-500">
+                                Missing: <span class="font-medium text-amber-700">{{ match.missing_ingredients|join:", " }}</span>
+                            </p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 text-center space-y-1.5">
+                        <p class="text-sm font-semibold text-slate-700">No recipe matches yet</p>
+                        <p class="text-xs text-slate-500">Add ingredients on the left or create recipes with ingredients in Admin.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if shopping_list %}
+                <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-emerald-100/60">
+                    <h2 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4">Missing Ingredients / Shopping List</h2>
+                    <div class="flex flex-wrap gap-2">
+                        {% for item in shopping_list %}
+                        <span class="text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                            {{ item }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
                 {% endif %}
             </div>
-        {% endfor %}
-    {% else %}
-        <p>No matching safe recipes right now. Add pantry items or review your allergy filters.</p>
-    {% endif %}
+        </div>
+    </main>
 
-    <h2>Recipes Shopping List</h2>
-    {% if shopping_ingredients %}
-        <ul>
-            {% for ing in shopping_ingredients %}
-                <li>{{ ing.name }}</li>
-            {% endfor %}
-        </ul>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="clear_shopping">
-            <button type="submit">Clear Shopping List</button>
-        </form>
-    {% else %}
-        <p>No missing ingredients saved yet.</p>
-    {% endif %}
 </body>
 </html>
