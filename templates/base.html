@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}FarmDirect{% endblock %}</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body class="bg-light">
   <nav class="navbar navbar-dark bg-success">
@@ -12,19 +12,19 @@
       <a class="navbar-brand fw-bold" href="{% url 'core:home' %}">🌾 FarmDirect</a>
       <div class="d-flex align-items-center gap-2">
         {% if user.is_authenticated %}
-                    {% if user.is_staff %}
-              <a class="btn btn-outline-light btn-sm" href="{% url 'admin:index' %}">Admin</a>
-            {% elif user.role == "farmer" %}
-              <a class="btn btn-outline-light btn-sm" href="{% url 'farms:dashboard' %}">My farm</a>
-              <a class="btn btn-outline-light btn-sm" href="{% url 'visits:farmer_slots' %}">Farm visits</a> 
-              {% elif user.role == "restaurant" %}
-              <a class="btn btn-outline-light btn-sm" href="{% url 'bulk:dashboard' %}">Bulk orders</a>
-              {% elif user.role == "customer" %}
-              <a class="btn btn-outline-light btn-sm" href="{% url 'visits:slot_list' %}">Visit a farm</a>
-              <a class="btn btn-outline-light btn-sm" href="{% url 'visits:my_bookings' %}">My visits</a>
-                            <a class="btn btn-outline-light btn-sm" href="{% url 'orders:cart' %}">My cart</a>
-              <a class="btn btn-outline-light btn-sm" href="{% url 'orders:order_history' %}">My orders</a>
-            {% endif %}
+          {% if user.is_staff %}
+            <a class="btn btn-outline-light btn-sm" href="{% url 'admin:index' %}">Admin</a>
+          {% elif user.role == "farmer" %}
+            <a class="btn btn-outline-light btn-sm" href="{% url 'farms:dashboard' %}">My farm</a>
+            <a class="btn btn-outline-light btn-sm" href="{% url 'visits:farmer_slots' %}">Farm visits</a>
+          {% elif user.role == "restaurant" %}
+            <a class="btn btn-outline-light btn-sm" href="{% url 'bulk:dashboard' %}">Bulk orders</a>
+          {% elif user.role == "customer" %}
+            <a class="btn btn-outline-light btn-sm" href="{% url 'visits:slot_list' %}">Visit a farm</a>
+            <a class="btn btn-outline-light btn-sm" href="{% url 'visits:my_bookings' %}">My visits</a>
+            <a class="btn btn-outline-light btn-sm" href="{% url 'orders:cart' %}">My cart</a>
+            <a class="btn btn-outline-light btn-sm" href="{% url 'orders:order_history' %}">My orders</a>
+          {% endif %}
           <span class="text-white me-2">{{ user.first_name|default:user.username }}</span>
           <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
             {% csrf_token %}
